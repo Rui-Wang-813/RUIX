@@ -24,8 +24,8 @@ class Solution:
             if temp:
                 # if the head is already intialized.
                 #
-                # it is OK to directly use the node because temp.next is already in the list of nodes to
-                # be compared.
+                # it is OK to directly use the node because the original temp.next is already in the list 
+                # of nodes to be compared.
                 temp.next = min_node    
                 temp = temp.next
             else:
