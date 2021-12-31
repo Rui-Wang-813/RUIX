@@ -10,6 +10,7 @@ import static com.craftinginterpreters.lox.TokenType.*;
 class Scanner {
     private static final Map<String, TokenType> keywords;
 
+    // a static block is executed exactly once: when the class is loaded into memory.
     static {
         keywords = new HashMap<>();
         keywords.put("and",    AND);

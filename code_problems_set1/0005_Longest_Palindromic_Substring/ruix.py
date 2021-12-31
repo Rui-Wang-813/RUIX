@@ -59,7 +59,4 @@ class Solution:
             return s[max_center//2 - max_radius:max_center//2 + max_radius + 1]
         else:
             # in this case, the longest palindrome is of even length.
-            return s[max_center//2 - max_radius:max_center//2 + max_radius]
-
-sol = Solution()
-print(sol.longestPalindrome("babad"))        
+            return s[max_center//2 - max_radius:max_center//2 + max_radius]    
