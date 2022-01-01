@@ -66,3 +66,33 @@ abstract class Expr{
 
     abstract <R> R accept(Visitor<R> visitor);
 }
+
+/* Grammar of Expression [version with ambiguity]:
+
+expression -> literal
+           | unary
+           | binary
+           | grouping ;
+
+literal    -> NUMBER | STRING | "false" | "true" | "nil" ;
+grouping   -> "(" expression ")" ;
+unary      -> ( "-" | "!" ) expression ;
+binary     -> expression operator expression ;
+operator   -> "==" | "!=" | "<" | "<=" | ">" | ">="
+           | "+"  | "-"  | "*" | "/" ;
+
+*/
+
+/* Grammar of Expression [version without ambiguity/precedence]:
+
+expression     -> equality ;
+equality       -> comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     -> addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
+addition       -> multiplication ( ( "-" | "+" ) multiplication )* ;
+multiplication -> unary ( ( "/" | "*" ) unary )* ;
+unary          -> ( "!" | "-" ) unary
+               | primary ;
+primary        -> NUMBER | STRING | "false" | "true" | "nil"
+               | "(" expression ")" ;
+
+*/

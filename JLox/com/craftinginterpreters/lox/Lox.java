@@ -12,13 +12,18 @@ public class Lox {
   static boolean hadError = false;
 
   private static void run(String source) {
+    // use Scanner scan the source string into list of Tokens.
     Scanner scanner = new Scanner(source);
-    List<Token> tokens = scanner.scanTokens();  // scan the source string into list of Tokens.
+    List<Token> tokens = scanner.scanTokens();
 
-    // For now, just print the tokens.
-    for (Token token : tokens) {
-      System.out.println(token);
-    }
+    // use Parser to parse the syntax tree out of tokens.
+    Parser parser = new Parser(tokens);
+    Expr expr = parser.parse();
+    
+    if (hadError) return ;
+
+    // print out the expression.
+    new AstPrinter().print(expr);
   }
 
   private static void runFile(String path) throws IOException {
@@ -46,6 +51,16 @@ public class Lox {
 
   private static void report(int line, String where, String message) {
     System.err.println("[line " + line + "] Error" + where + ": " + message);
+  }
+
+  static void error(Token token, String message) {
+    // error occurs for a given token.
+    if (token.type == TokenType.EOF) {
+      report(token.line, " at end", message);
+    } else {
+      report(token.line, " at '" + token.lexeme + "'", message);
+    }
+    hadError = true;
   }
 
   static void error(int line, String message) {
