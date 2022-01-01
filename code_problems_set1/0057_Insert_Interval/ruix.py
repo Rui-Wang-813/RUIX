@@ -47,6 +47,9 @@ class Solution:
                 # new interval covers this interval, just skip it.
                 idx += 1
         
+        # note that now, intervals[len(ans):idx] should not be included in the answer, as they've been 
+        # merged into new interval.
+        
         # decide if new interval overlaps with the last one before it.
         if len(ans) and ans[-1][1] >= a[0]:
             # the last one overlaps with new interval, choose the larger upper bound to be the new
@@ -57,9 +60,3 @@ class Solution:
             ans.append(a)
         
         return ans + intervals[idx:]    # concatenate the left and right half of answer.
-
-intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]
-newInterval = [4,8]
-
-sol = Solution()
-print(sol.insert(intervals, newInterval))
