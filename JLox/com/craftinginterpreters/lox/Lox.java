@@ -10,6 +10,9 @@ import java.util.List;
 
 public class Lox {
   static boolean hadError = false;
+  static boolean hadRuntimeError = false;
+
+  private static final Interpreter interpreter = new Interpreter();
 
   private static void run(String source) {
     // use Scanner scan the source string into list of Tokens.
@@ -23,7 +26,10 @@ public class Lox {
     if (hadError) return ;
 
     // print out the expression.
-    new AstPrinter().print(expr);
+    // System.out.println(new AstPrinter().print(expr));
+
+    // interpret the code.
+    interpreter.interpret(expr);
   }
 
   private static void runFile(String path) throws IOException {
@@ -31,8 +37,12 @@ public class Lox {
     run(new String(bytes, Charset.defaultCharset()));
 
     if (hadError) {
-      // if error occurs, system simply exits with status code 65.
+      // if static/syntax error occurs, system simply exits with status code 65.
       System.exit(65);
+    }
+    if (hadRuntimeError) {
+      // if runtime error occurs, system exits with status code 70.
+      System.exit(70);
     }
   }
 
@@ -67,6 +77,12 @@ public class Lox {
     // error occurs! report into terminal.
     report(line, "", message);
     hadError = true;
+  }
+
+  // report when runtime error occurs.
+  static void runtimeError(RuntimeError error) {
+    System.out.println(error.getMessage() + "\nline[" + error.token.line + "]");
+    hadRuntimeError = true;
   }
 
   public static void main(String[] args) throws IOException {

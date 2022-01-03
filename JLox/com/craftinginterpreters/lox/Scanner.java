@@ -35,7 +35,7 @@ class Scanner {
     private final List<Token> tokens = new ArrayList<>();
 
     private int start = 0;
-    private int current = start;
+    private int current = 0;
     private int line = 1;
 
     Scanner(String source) {
@@ -44,16 +44,12 @@ class Scanner {
 
     List<Token> scanTokens() {
         while (!isAtEnd()) {
-            current = start;
+            start = current;
             scanToken();    // this is where scanning really happens.
         }
 
         tokens.add(new Token(EOF, "", null, line)); // when everything is scanned, add an EOF token.
         return tokens;
-    }
-
-    private boolean isAtEnd() {
-        return current >= source.length();
     }
 
     private void scanToken() {
@@ -96,6 +92,10 @@ class Scanner {
                 }
                 break;
         }
+    }
+
+    private boolean isAtEnd() {
+        return current >= source.length();
     }
 
     // return and consume the current char.
