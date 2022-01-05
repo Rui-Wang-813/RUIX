@@ -9,8 +9,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Lox {
-  static boolean hadError = false;
-  static boolean hadRuntimeError = false;
+  static boolean hadError = false;        // had compile/syntax error?
+  static boolean hadRuntimeError = false; // had runtime error?
 
   private static final Interpreter interpreter = new Interpreter();
 
@@ -21,7 +21,7 @@ public class Lox {
 
     // use Parser to parse the syntax tree out of tokens.
     Parser parser = new Parser(tokens);
-    Expr expr = parser.parse();
+    List<Stmt> statements = parser.parse();
     
     if (hadError) return ;
 
@@ -29,7 +29,7 @@ public class Lox {
     // System.out.println(new AstPrinter().print(expr));
 
     // interpret the code.
-    interpreter.interpret(expr);
+    interpreter.interpret(statements);
   }
 
   private static void runFile(String path) throws IOException {

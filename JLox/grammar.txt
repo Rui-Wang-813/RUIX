@@ -1,0 +1,75 @@
+rule version 1 (with ambiguity):
+
+expression -> literal
+           | unary
+           | binary
+           | grouping ;
+
+literal    -> NUMBER | STRING | "false" | "true" | "nil" ;
+grouping   -> "(" expression ")" ;
+unary      -> ( "-" | "!" ) expression ;
+binary     -> expression operator expression ;
+operator   -> "==" | "!=" | "<" | "<=" | ">" | ">="
+           | "+"  | "-"  | "*" | "/" ;
+
+
+rule version 2 (without ambiguity, with precedence):
+
+expression     -> equality ;
+equality       -> comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     -> addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
+addition       -> multiplication ( ( "-" | "+" ) multiplication )* ;
+multiplication -> unary ( ( "/" | "*" ) unary )* ;
+unary          -> ( "!" | "-" ) unary
+               | primary ;
+primary        -> NUMBER | STRING | "false" | "true" | "nil"
+               | "(" expression ")" ;
+
+
+rule version 3 (add expression and print statements):
+
+program   -> statement* EOF ;
+
+statement -> exprStmt
+          | printStmt ;
+
+exprStmt  -> expression ";" ;
+printStmt -> "print" expression ";" ;
+
+[here, apply rule version 2]
+
+
+rule version 4 (add declaration statements and change program production rule):
+
+program     -> declaration* EOF ;
+
+declaration -> varDecl
+            | statement ;
+
+varDecl     -> "var" IDENTIFIER ( "=" expression)? ";" ; 
+
+[here, apply rule version 3, but change primary production rule]:
+
+primary     -> NUMBER | STRING | "false" | "true" | "nil"
+            | "(" expression ")" | IDENTIFIER ;
+
+
+rule version 5 (add assignment):
+
+[apply rule version 4, but change the expression production rule]:
+
+expression -> assignment ;
+
+assignment -> IDENTIFIER "=" assignment
+           | equality ;
+
+
+rule version 6 (add block statement):
+
+[apply rule version 5, but change the statement production rule]:
+
+statement -> exprStmt
+          | printStmt
+          | block ;
+
+block     -> "{" declaration* "}";

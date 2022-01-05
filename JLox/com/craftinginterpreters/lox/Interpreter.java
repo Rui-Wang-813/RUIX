@@ -1,15 +1,74 @@
 package com.craftinginterpreters.lox;
 
-public class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
 
-    // public interface to interpret an expression.
-    public void interpret(Expr expr) {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+
+    // IDENTIFIER -> value.
+    private Environment env = new Environment();
+
+    // public interface to interpret a list of statements.
+    public void interpret(List<Stmt> statements) {
         try {
-            Object val = evaluate(expr);
-            System.out.println(stringify(val));
+            for (Stmt statement: statements) {
+                execute(statement);
+            }
         } catch(RuntimeError e) {
             Lox.runtimeError(e);
         }
+    }
+
+    // execute block statement.
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        env = new Environment(env); // create a new environment for this block, nested in current env.
+
+        try {
+            for (Stmt statement: stmt.statements) {
+                execute(statement);
+            }
+        } finally {
+            // after all statements are executed, restore the environment.
+            env = env.enclosing;
+        }
+
+        return null;
+    }
+
+    // execute variable declaration statement.
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        Object value = null;
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+
+        env.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    // execute expression statement.
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    // execute print statement.
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    // evaluate assignment expression.
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr) {
+        Object value = evaluate(expr.value);
+        env.assign(expr.name, value);
+        
+        return value;
     }
 
     // evaluate binary expression.
@@ -88,9 +147,20 @@ public class Interpreter implements Expr.Visitor<Object> {
         return null;
     }
 
-    // simply a wrapper.
+    // evaluate variable expression.
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr) {
+        return env.get(expr.name);
+    }
+
+    // simply a wrapper to evaluate expression.
     private Object evaluate(Expr expr) {
         return expr.accept(this);
+    }
+
+    // simply a wrapper to execute statement.
+    private Void execute(Stmt stmt) {
+        return stmt.accept(this);
     }
 
     // whether the val is truthy. (true in an if statement)
